@@ -4,6 +4,7 @@ import {
   LayoutMethods,
   LayoutProxy,
   ExtractFields,
+  ExtractMappedFields,
   ScriptObject,
   ScriptInput,
   CreateDAPI,
@@ -12,10 +13,108 @@ import {
   FindDAPI,
   ListDAPI,
   DeleteDAPI,
-  JSDriverPayload
+  JSDriverPayload,
+  DAPIResult,
+  ParsedDAPIResult,
+  LayoutDefinition
 } from './types.js';
 import defaultSchemaData from './fmSchema.json' assert { type: 'json' };
 import FMGofer, { Option, FMGPromise } from 'fm-gofer';
+
+/**
+ * Utility function to parse DAPI result string and map field names
+ */
+function parseDAPIResult<TLayout extends LayoutDefinition>(
+  resultString: string, 
+  layout: TLayout
+): ParsedDAPIResult<TLayout> {
+  // Handle case where resultString might not be valid JSON (like in testing environment)
+  let rawResult: any;
+  try {
+    rawResult = JSON.parse(resultString);
+  } catch (error) {
+    // If parsing fails, return a mock result for testing
+    return {
+      data: {
+        messages: [{ code: "999", message: `Parse error: ${error}. Received: ${resultString}` }],
+        response: {
+          data: [],
+          dataInfo: {
+            database: "Unknown",
+            foundCount: 0,
+            layout: "Unknown",
+            returnedCount: 0,
+            table: "Unknown",
+            totalRecordCount: 0
+          }
+        }
+      },
+      error: 999
+    } as ParsedDAPIResult<TLayout>;
+  }
+  
+  // The rawResult IS the DAPI result structure
+  const dapiResult: DAPIResult = rawResult;
+  
+  // Ensure we have the expected structure
+  if (!dapiResult || !dapiResult.data || !dapiResult.data.response || !dapiResult.data.response.data) {
+    return {
+      data: {
+        messages: [{ code: "998", message: "Invalid DAPI response structure" }],
+        response: {
+          data: [],
+          dataInfo: {
+            database: "Unknown",
+            foundCount: 0,
+            layout: "Unknown",
+            returnedCount: 0,
+            table: "Unknown",
+            totalRecordCount: 0
+          }
+        }
+      },
+      error: 998
+    } as ParsedDAPIResult<TLayout>;
+  }
+  
+  // Create field mapping from layout fields
+  const fieldMapping = layout.fields;
+  const reverseMapping: Record<string, string> = {};
+  for (const [friendlyName, fieldName] of Object.entries(fieldMapping)) {
+    reverseMapping[fieldName] = friendlyName;
+  }
+  
+  // Map the data array with friendly field names at record level
+  const mappedData = dapiResult.data.response.data.map(record => {
+    const mappedRecord: any = {
+      fieldData: record.fieldData,
+      modId: record.modId,
+      portalData: record.portalData,
+      recordId: record.recordId
+    };
+    
+    // Add friendly field accessors at the record level (not nested in fieldData)
+    for (const [fieldName, value] of Object.entries(record.fieldData)) {
+      const friendlyName = reverseMapping[fieldName];
+      if (friendlyName) {
+        mappedRecord[friendlyName] = value;
+      }
+    }
+    
+    return mappedRecord;
+  });
+  
+  return {
+    data: {
+      messages: dapiResult.data.messages,
+      response: {
+        data: mappedData,
+        dataInfo: dapiResult.data.response.dataInfo
+      }
+    },
+    error: dapiResult.error
+  } as ParsedDAPIResult<TLayout>;
+}
 
 /**
  * FMJSDriver - A lightweight, type-safe JavaScript/TypeScript driver for FileMaker
@@ -88,20 +187,21 @@ export class FMJSDriver<TSchema extends FMSchema> {
   /**
    * Performs a create operation on the specified layout
    */
-  private performCreate<T>(layoutName: string, fieldData: T, prescript?: ScriptInput<any>, script?: ScriptInput<any>): FMGPromise {
+  private async performCreate<T>(layoutName: string, fieldData: T, prescript?: ScriptInput<any>, script?: ScriptInput<any>): Promise<ParsedDAPIResult<any>> {
     const actualLayoutName = this.layouts[layoutName]?.layoutName || layoutName;
     const dapi: CreateDAPI<T> = {
       layouts: actualLayoutName,
       fieldData
     };
 
-    return this.executeJSDriver('create', dapi, prescript, script);
+    const result = await this.executeJSDriver('create', dapi, prescript, script);
+    return parseDAPIResult(result, this.layouts[layoutName]);
   }
 
   /**
    * Performs an update operation on the specified layout
    */
-  private performUpdate<T>(layoutName: string, recordId: string | number, fieldData: Partial<T>, prescript?: ScriptInput<any>, script?: ScriptInput<any>): FMGPromise {
+  private async performUpdate<T>(layoutName: string, recordId: string | number, fieldData: Partial<T>, prescript?: ScriptInput<any>, script?: ScriptInput<any>): Promise<ParsedDAPIResult<any>> {
     const actualLayoutName = this.layouts[layoutName]?.layoutName || layoutName;
     const dapi: UpdateDAPI<Partial<T>> = {
       layouts: actualLayoutName,
@@ -109,26 +209,28 @@ export class FMJSDriver<TSchema extends FMSchema> {
       fieldData
     };
 
-    return this.executeJSDriver('update', dapi, prescript, script);
+    const result = await this.executeJSDriver('update', dapi, prescript, script);
+    return parseDAPIResult(result, this.layouts[layoutName]);
   }
 
   /**
    * Performs a get operation to retrieve a single record
    */
-  private performGet(layoutName: string, recordId: string | number, prescript?: ScriptInput<any>, script?: ScriptInput<any>): FMGPromise {
+  private async performGet(layoutName: string, recordId: string | number, prescript?: ScriptInput<any>, script?: ScriptInput<any>): Promise<ParsedDAPIResult<any>> {
     const actualLayoutName = this.layouts[layoutName]?.layoutName || layoutName;
     const dapi: GetDAPI = {
       layouts: actualLayoutName,
       recordId
     };
 
-    return this.executeJSDriver('get', dapi, prescript, script);
+    const result = await this.executeJSDriver('get', dapi, prescript, script);
+    return parseDAPIResult(result, this.layouts[layoutName]);
   }
 
   /**
    * Performs a find operation with query parameters
    */
-  private performFind<T>(layoutName: string, query: Partial<T>, options?: { offset?: number; limit?: number }, prescript?: ScriptInput<any>, script?: ScriptInput<any>): FMGPromise {
+  private async performFind<T>(layoutName: string, query: Partial<T>, options?: { offset?: number; limit?: number }, prescript?: ScriptInput<any>, script?: ScriptInput<any>): Promise<ParsedDAPIResult<any>> {
     const actualLayoutName = this.layouts[layoutName]?.layoutName || layoutName;
     const dapi: FindDAPI<T> = {
       layouts: actualLayoutName,
@@ -136,41 +238,47 @@ export class FMJSDriver<TSchema extends FMSchema> {
       ...options
     };
 
-    return this.executeJSDriver('find', dapi, prescript, script);
+    const result = await this.executeJSDriver('find', dapi, prescript, script);
+    return parseDAPIResult(result, this.layouts[layoutName]);
   }
 
   /**
    * Performs a list operation to retrieve multiple records
    */
-  private performList(layoutName: string, options?: { offset?: number; limit?: number }, prescript?: ScriptInput<any>, script?: ScriptInput<any>): FMGPromise {
+  private async performList(layoutName: string, options?: { offset?: number; limit?: number }, prescript?: ScriptInput<any>, script?: ScriptInput<any>): Promise<ParsedDAPIResult<any>> {
     const actualLayoutName = this.layouts[layoutName]?.layoutName || layoutName;
     const dapi: ListDAPI = {
       layouts: actualLayoutName,
       ...options
     };
 
-    return this.executeJSDriver('list', dapi, prescript, script);
+    const result = await this.executeJSDriver('list', dapi, prescript, script);
+    return parseDAPIResult(result, this.layouts[layoutName]);
   }
 
   /**
    * Performs a delete operation on the specified record
    */
-  private performDelete(layoutName: string, recordId: string | number, prescript?: ScriptInput<any>, script?: ScriptInput<any>): FMGPromise {
+  private async performDelete(layoutName: string, recordId: string | number, prescript?: ScriptInput<any>, script?: ScriptInput<any>): Promise<ParsedDAPIResult<any>> {
     const actualLayoutName = this.layouts[layoutName]?.layoutName || layoutName;
     const dapi: DeleteDAPI = {
       layouts: actualLayoutName,
       recordId
     };
 
-    return this.executeJSDriver('delete', dapi, prescript, script);
+    const result = await this.executeJSDriver('delete', dapi, prescript, script);
+    return parseDAPIResult(result, this.layouts[layoutName]);
   }
 
   /**
    * Executes a custom script without layout context
    */
-  private performExecuteScript(script: ScriptInput<any>): FMGPromise {
+  private async performExecuteScript(script: ScriptInput<any>): Promise<ParsedDAPIResult<any>> {
     const scriptObject = this.createScriptObject(script);
-    return FMGofer.PerformScriptWithOption(scriptObject.script, scriptObject.parameter, scriptObject.option as any);
+    const result = await FMGofer.PerformScriptWithOption(scriptObject.script, scriptObject.parameter, scriptObject.option as any);
+    // For scripts without layout context, use a minimal layout definition
+    const minimalLayout = { fields: {}, fieldMetaData: [] };
+    return parseDAPIResult(result, minimalLayout);
   }
 
   /**
