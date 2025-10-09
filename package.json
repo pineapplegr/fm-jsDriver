@@ -1,0 +1,52 @@
+{
+  "name": "fm-jsdriver",
+  "version": "1.0.0",
+  "description": "A lightweight, type-safe JavaScript/TypeScript driver for FileMaker that uses fm-gofer as the bridge to FileMaker.PerformScript",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist/**/*",
+    "src/**/*",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "clean": "rm -rf dist",
+    "dev": "tsc --watch"
+  },
+  "keywords": [
+    "filemaker",
+    "typescript",
+    "database",
+    "fm-gofer",
+    "driver"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "fm-gofer": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/fm-jsdriver.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/fm-jsdriver/issues"
+  },
+  "homepage": "https://github.com/your-username/fm-jsdriver#readme"
+}
