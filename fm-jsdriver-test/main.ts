@@ -9,15 +9,40 @@ if (result.data.messages[0].code !== '0') {
     throw new Error(`Error: ${result.data.messages[0].message}`);
 } else {
     const records = result.data.response.data;
-    let divList = document.createElement('div');
-    divList.id = 'contact-list';
+    
+    // Create table element
+    let table = document.createElement('table');
+    table.id = 'contact-table';
+    table.style.borderCollapse = 'collapse';
+    table.style.width = '100%';
+    table.style.marginTop = '20px';
+    
+    // Create table header
+    let thead = document.createElement('thead');
+    let headerRow = document.createElement('tr');
+    headerRow.innerHTML = `
+        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">ID</th>
+        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Name</th>
+        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Surname</th>
+        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Date of Birth</th>
+    `;
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+    
+    // Create table body
+    let tbody = document.createElement('tbody');
     
     for (const record of records) {
-        // Create list of all contacts
-        let divItem = document.createElement('div');
-        divItem.className = 'contact-item';
-        divItem.innerHTML = `ID: ${record.id}, Name: ${record.name}, Dob: ${record.dob}, No: ${record.qualifications_no}`;
-        divList.appendChild(divItem);
+        let row = document.createElement('tr');
+        row.innerHTML = `
+            <td style="border: 1px solid #ddd; padding: 8px;">${record.id || ''}</td>
+            <td style="border: 1px solid #ddd; padding: 8px;">${record.name || ''}</td>
+            <td style="border: 1px solid #ddd; padding: 8px;">${record.surname || ''}</td>
+            <td style="border: 1px solid #ddd; padding: 8px;">${record.recordId || ''}</td>
+        `;
+        tbody.appendChild(row);
     }
-    document.body.appendChild(divList);
+    
+    table.appendChild(tbody);
+    document.body.appendChild(table);
 }
