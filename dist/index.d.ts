@@ -1,9 +1,13 @@
 /**
- * fm-jsdriver - A lightweight, type-safe JavaScript/TypeScript driver for FileMaker
- *
- * Main entry point for the package
+ * fm-jsDriver: Type-safe FileMaker driver for webviewer communication
+ * Main driver implementation using fm-gofer for FileMaker script execution
  */
-export { FMJSDriver, setup } from './FMJSDriver.js';
-export type { FMGofer, FieldMetaData, LayoutDefinition, FMSchema, SchemaRoot, FMJSDriverOptions, ScriptObject, ScriptInput, CreateDAPI, UpdateDAPI, GetDAPI, FindDAPI, ListDAPI, DeleteDAPI, JSDriverPayload, LayoutMethods, ExtractFields, LayoutProxy, FMJSDriverType } from './types.js';
-export { FMJSDriver as default } from './FMJSDriver.js';
+import { FMSchema, Driver } from './types';
+/**
+ * Creates the main driver with layout-specific methods
+ */
+export declare function createDriver(schema: FMSchema): Driver;
+export * from './types';
+export * from './schema';
+export { generateTypeScriptFromSchema } from './generator';
 //# sourceMappingURL=index.d.ts.map

@@ -1,153 +1,139 @@
 /**
- * Type definitions for fm-jsdriver
- * Provides comprehensive typing for FileMaker schema and driver operations
+ * Core type definitions for fm-jsDriver
+ * These types define the structure of requests and responses for FileMaker communication
  */
-export interface FMGofer {
-    PerformScriptWithOption(script: string, parameter: string, option: number): void;
+/**
+ * Represents a FileMaker script to be executed
+ * Can be either a string (script name) or an object with full script parameters
+ */
+export type ScriptInput = string | ScriptObject;
+/**
+ * Detailed script object with optional parameters and options
+ */
+export interface ScriptObject {
+    script: string;
+    parameter?: string;
+    option?: number;
 }
-export interface FieldMetaData {
-    name: string;
-    type: string;
-    displayType?: string;
-    result?: string;
-    global?: boolean;
+/**
+ * Options for pagination in find and list operations
+ */
+export interface FindOptions {
+    offset?: number;
+    limit?: number;
+}
+/**
+ * Sort specification for FileMaker queries
+ */
+export interface SortSpecification {
+    fieldName: string;
+    sortOrder: 'ascend' | 'descend';
+}
+/**
+ * FileMaker Data API request structure
+ * Maps to the Execute Data API format expected by FileMaker
+ */
+export interface ExecuteDataAPIRequest {
+    action?: 'read' | 'create' | 'update' | 'delete' | 'duplicate' | 'metaData';
+    layouts?: string;
+    recordId?: string | number;
+    fieldData?: Record<string, any>;
+    query?: Array<Record<string, string>>;
+    offset?: number;
+    limit?: number;
+    sort?: SortSpecification[];
+}
+/**
+ * Complete parameter structure passed to FileMaker via FMGofer.PerformScript
+ */
+export interface DriverParameter {
+    prescript?: ScriptInput;
+    dapi?: ExecuteDataAPIRequest;
+    script?: ScriptInput;
+}
+/**
+ * Field metadata from schema
+ */
+export interface FieldMeta {
     autoEnter?: boolean;
-    fourDigitYear?: boolean;
-    maxRepeat?: number;
-    maxCharacters?: number;
     notEmpty?: boolean;
+    type?: string;
+    displayType?: string;
+    fourDigitYear?: boolean;
+    global?: boolean;
+    maxCharacters?: number;
+    maxRepeat?: number;
     numeric?: boolean;
-    timeOfDay?: boolean;
-    repetitionStart?: number;
     repetitionEnd?: number;
+    repetitionStart?: number;
+    result?: string;
+    timeOfDay?: boolean;
 }
+/**
+ * Field definition in schema
+ */
+export interface FieldDefinition {
+    _meta?: FieldMeta;
+    type: string;
+}
+/**
+ * Layout definition in schema
+ */
 export interface LayoutDefinition {
-    fields: Record<string, string>;
-    fieldMetaData: FieldMetaData[];
-    layoutName?: string;
+    fields: {
+        [fieldName: string]: FieldDefinition;
+    };
 }
+/**
+ * Complete schema structure
+ */
 export interface FMSchema {
-    layouts: Record<string, LayoutDefinition>;
-    scripts?: string[];
-}
-export interface SchemaRoot {
-    fmSchema: FMSchema;
-}
-export interface FMJSDriverOptions {
-    gofer: FMGofer;
-    schema?: SchemaRoot;
-}
-export interface ScriptObject<TScriptNames extends string = string> {
-    script: TScriptNames;
-    parameter: string;
-    option: number;
-}
-export type ScriptInput<TScriptNames extends string = string> = TScriptNames | ScriptObject<TScriptNames>;
-export interface CreateDAPI<T> {
-    layouts: string;
-    fieldData: T;
-}
-export interface UpdateDAPI<T> {
-    layouts: string;
-    recordId: string | number;
-    fieldData: T;
-}
-export interface GetDAPI {
-    layouts: string;
-    recordId: string | number;
-}
-export interface FindDAPI<T> {
-    layouts: string;
-    query: Partial<T>;
-    offset?: number;
-    limit?: number;
-}
-export interface ListDAPI {
-    layouts: string;
-    offset?: number;
-    limit?: number;
-}
-export interface DeleteDAPI {
-    layouts: string;
-    recordId: string | number;
-}
-export interface JSDriverPayload {
-    method: string;
-    dapi: CreateDAPI<any> | UpdateDAPI<any> | GetDAPI | FindDAPI<any> | ListDAPI | DeleteDAPI;
-    scriptObject?: ScriptObject;
-}
-export interface LayoutMethods<TLayout extends LayoutDefinition, TScriptNames extends string = string> {
-    create(fieldData: ExtractMappedFields<TLayout>, prescript?: ScriptInput<TScriptNames>, script?: ScriptInput<TScriptNames>): Promise<ParsedDAPIResult<TLayout>>;
-    update(recordId: string | number, fieldData: Partial<ExtractMappedFields<TLayout>>, prescript?: ScriptInput<TScriptNames>, script?: ScriptInput<TScriptNames>): Promise<ParsedDAPIResult<TLayout>>;
-    get(recordId: string | number, prescript?: ScriptInput<TScriptNames>, script?: ScriptInput<TScriptNames>): Promise<ParsedDAPIResult<TLayout>>;
-    find(query: Partial<ExtractMappedFields<TLayout>>, options?: {
-        offset?: number;
-        limit?: number;
-    }, prescript?: ScriptInput<TScriptNames>, script?: ScriptInput<TScriptNames>): Promise<ParsedDAPIResult<TLayout>>;
-    list(options?: {
-        offset?: number;
-        limit?: number;
-    }, prescript?: ScriptInput<TScriptNames>, script?: ScriptInput<TScriptNames>): Promise<ParsedDAPIResult<TLayout>>;
-    delete(recordId: string | number, prescript?: ScriptInput<TScriptNames>, script?: ScriptInput<TScriptNames>): Promise<ParsedDAPIResult<TLayout>>;
-    executeScript(script: ScriptInput<TScriptNames>): Promise<ParsedDAPIResult<TLayout>>;
-}
-export type ExtractFields<T extends LayoutDefinition> = {
-    [K in keyof T['fields']]: string | number | boolean | null;
-};
-export type ExtractScriptNames<T extends FMSchema> = T['scripts'] extends readonly string[] ? T['scripts'][number] : string;
-export type LayoutProxy<TSchema extends FMSchema> = {
-    [K in keyof TSchema['layouts']]: LayoutMethods<TSchema['layouts'][K], ExtractScriptNames<TSchema>>;
-};
-export interface DAPIMessage {
-    code: string;
-    message: string;
-}
-export interface DAPIDataInfo {
-    database: string;
-    foundCount: number;
-    layout: string;
-    returnedCount: number;
-    table: string;
-    totalRecordCount: number;
-}
-export interface DAPIRecord<TFieldData = Record<string, any>> {
-    fieldData: TFieldData;
-    modId: string;
-    portalData: Record<string, any>;
-    recordId: string;
-}
-export interface DAPIResponse<TFieldData = Record<string, any>> {
-    data: DAPIRecord<TFieldData>[];
-    dataInfo: DAPIDataInfo;
-}
-export interface DAPIData<TFieldData = Record<string, any>> {
-    messages: DAPIMessage[];
-    response: DAPIResponse<TFieldData>;
-}
-export interface DAPIResult<TFieldData = Record<string, any>> {
-    data: DAPIData<TFieldData>;
-    error: number;
-}
-export type ExtractFieldData<T extends LayoutDefinition> = {
-    [K in T['fields'][keyof T['fields']]]: string;
-};
-export type ExtractMappedFields<T extends LayoutDefinition> = {
-    [K in keyof T['fields']]: string;
-};
-export type ParsedDAPIResult<TLayout extends LayoutDefinition> = {
-    data: {
-        messages: DAPIMessage[];
-        response: {
-            data: Array<{
-                fieldData: ExtractFieldData<TLayout>;
-                modId: string;
-                portalData: Record<string, any>;
-                recordId: string;
-            } & ExtractMappedFields<TLayout>>;
-            dataInfo: DAPIDataInfo;
+    fmSchema: {
+        layouts: {
+            [layoutName: string]: LayoutDefinition;
         };
     };
-    error: number;
-};
-export type FMJSDriverType<TSchema extends FMSchema> = LayoutProxy<TSchema>;
+}
+/**
+ * FileMaker response structure
+ */
+export interface FMResponse {
+    messages?: Array<{
+        code: string;
+        message: string;
+    }>;
+    response?: {
+        recordId?: string;
+        modId?: string;
+        data?: any[];
+        dataInfo?: {
+            database: string;
+            layout: string;
+            table: string;
+            totalRecordCount: number;
+            foundCount: number;
+            returnedCount: number;
+        };
+    };
+    scriptResult?: string;
+    scriptError?: string;
+}
+/**
+ * Layout methods interface - defines all available operations for a layout
+ */
+export interface LayoutMethods<T> {
+    create(fieldData: T, prescript?: ScriptInput, script?: ScriptInput): Promise<any>;
+    update(recordId: string | number, fieldData: Partial<T>, prescript?: ScriptInput, script?: ScriptInput): Promise<any>;
+    get(recordId: string | number, prescript?: ScriptInput, script?: ScriptInput): Promise<any>;
+    find(query: Partial<T>, options?: FindOptions, prescript?: ScriptInput, script?: ScriptInput): Promise<any>;
+    list(options?: FindOptions, prescript?: ScriptInput, script?: ScriptInput): Promise<any>;
+    delete(recordId: string | number, prescript?: ScriptInput, script?: ScriptInput): Promise<any>;
+}
+/**
+ * Driver interface with layout-specific methods
+ */
+export interface Driver {
+    [layoutName: string]: LayoutMethods<any> | ((script: ScriptInput) => Promise<any>);
+    executeScript(script: ScriptInput): Promise<any>;
+}
 //# sourceMappingURL=types.d.ts.map

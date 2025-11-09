@@ -1,0 +1,209 @@
+{
+  "fmSchema": {
+    "layouts": {
+      "Contacts": {
+        "fields": {
+          "id": {
+            "_meta": {
+              "autoEnter": true,
+              "notEmpty": true,
+              "type": "normal"
+            },
+            "type": "number"
+          },
+          "name": {
+            "_meta": {
+              "notEmpty": true,
+              "type": "normal"
+            },
+            "type": "string"
+          },
+          "email": {
+            "_meta": {
+              "type": "normal"
+            },
+            "type": "string"
+          },
+          "company": {
+            "_meta": {
+              "type": "normal"
+            },
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "zip": {
+            "type": "string"
+          },
+          "createdAt": {
+            "_meta": {
+              "autoEnter": true,
+              "type": "normal"
+            },
+            "type": "timestamp"
+          },
+          "modifiedAt": {
+            "_meta": {
+              "autoEnter": true,
+              "type": "normal"
+            },
+            "type": "timestamp"
+          }
+        }
+      },
+      "Companies": {
+        "fields": {
+          "id": {
+            "_meta": {
+              "autoEnter": true,
+              "notEmpty": true,
+              "type": "normal"
+            },
+            "type": "number"
+          },
+          "companyName": {
+            "_meta": {
+              "notEmpty": true,
+              "type": "normal"
+            },
+            "type": "string"
+          },
+          "industry": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          },
+          "employeeCount": {
+            "type": "number"
+          },
+          "revenue": {
+            "type": "number"
+          },
+          "founded": {
+            "type": "date"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Projects": {
+        "fields": {
+          "projectId": {
+            "_meta": {
+              "autoEnter": true,
+              "notEmpty": true,
+              "type": "normal"
+            },
+            "type": "string"
+          },
+          "projectName": {
+            "_meta": {
+              "notEmpty": true,
+              "type": "normal"
+            },
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "startDate": {
+            "_meta": {
+              "notEmpty": true,
+              "type": "normal"
+            },
+            "type": "date"
+          },
+          "endDate": {
+            "type": "date"
+          },
+          "budget": {
+            "type": "number"
+          },
+          "status": {
+            "_meta": {
+              "notEmpty": true,
+              "type": "normal"
+            },
+            "type": "string"
+          },
+          "clientId": {
+            "type": "number"
+          }
+        }
+      },
+      "Invoices": {
+        "fields": {
+          "invoiceId": {
+            "_meta": {
+              "autoEnter": true,
+              "notEmpty": true,
+              "type": "normal"
+            },
+            "type": "number"
+          },
+          "invoiceNumber": {
+            "_meta": {
+              "autoEnter": true,
+              "notEmpty": true,
+              "type": "normal"
+            },
+            "type": "string"
+          },
+          "clientId": {
+            "_meta": {
+              "notEmpty": true,
+              "type": "normal"
+            },
+            "type": "number"
+          },
+          "issueDate": {
+            "_meta": {
+              "notEmpty": true,
+              "type": "normal"
+            },
+            "type": "date"
+          },
+          "dueDate": {
+            "_meta": {
+              "notEmpty": true,
+              "type": "normal"
+            },
+            "type": "date"
+          },
+          "amount": {
+            "_meta": {
+              "notEmpty": true,
+              "type": "normal"
+            },
+            "type": "number"
+          },
+          "amountPaid": {
+            "type": "number"
+          },
+          "status": {
+            "_meta": {
+              "notEmpty": true,
+              "type": "normal"
+            },
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

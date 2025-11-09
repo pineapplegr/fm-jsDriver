@@ -1,52 +1,48 @@
 {
   "name": "fm-jsdriver",
   "version": "1.0.0",
-  "description": "A lightweight, type-safe JavaScript/TypeScript driver for FileMaker that uses fm-gofer as the bridge to FileMaker.PerformScript",
-  "type": "module",
+  "description": "Type-safe FileMaker driver for webviewer communication using fm-gofer",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
+  "bin": {
+    "fm-generate-schema": "./dist/generator.js"
   },
-  "files": [
-    "dist/**/*",
-    "src/**/*",
-    "README.md"
-  ],
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build",
-    "clean": "rm -rf dist",
-    "dev": "tsc --watch"
+    "prepublishOnly": "npm run build",
+    "generate-schema": "ts-node src/generator.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "keywords": [
     "filemaker",
+    "driver",
+    "webviewer",
     "typescript",
-    "database",
     "fm-gofer",
-    "driver"
+    "data-api",
+    "database",
+    "type-safe"
   ],
-  "author": "Your Name",
+  "author": "",
   "license": "MIT",
   "dependencies": {
-    "fm-gofer": "*"
+    "fm-gofer": "^1.11.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "typescript": "^5.9.3"
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=14.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/fm-jsdriver.git"
-  },
-  "bugs": {
-    "url": "https://github.com/your-username/fm-jsdriver/issues"
-  },
-  "homepage": "https://github.com/your-username/fm-jsdriver#readme"
+    "url": ""
+  }
 }

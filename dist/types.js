@@ -1,5 +1,7 @@
+"use strict";
 /**
- * Type definitions for fm-jsdriver
- * Provides comprehensive typing for FileMaker schema and driver operations
+ * Core type definitions for fm-jsDriver
+ * These types define the structure of requests and responses for FileMaker communication
  */
-export {};
+Object.defineProperty(exports, "__esModule", { value: true });
+//# sourceMappingURL=types.js.map
