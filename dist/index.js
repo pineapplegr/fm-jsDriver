@@ -79,7 +79,8 @@ function createLayoutMethods(layoutName) {
                 dapi: {
                     action: 'create',
                     layouts: layoutName,
-                    fieldData: fieldData
+                    fieldData: fieldData,
+                    dateformats: 2
                 }
             };
             // Add prescript if provided
@@ -101,7 +102,8 @@ function createLayoutMethods(layoutName) {
                     action: 'update',
                     layouts: layoutName,
                     recordId: recordId,
-                    fieldData: fieldData
+                    fieldData: fieldData,
+                    dateformats: 2
                 }
             };
             if (prescript) {
@@ -120,7 +122,8 @@ function createLayoutMethods(layoutName) {
                 dapi: {
                     action: 'read',
                     layouts: layoutName,
-                    recordId: recordId
+                    recordId: recordId,
+                    dateformats: 2
                 }
             };
             if (prescript) {
@@ -147,8 +150,9 @@ function createLayoutMethods(layoutName) {
                     action: 'read',
                     layouts: layoutName,
                     query: fmQuery,
-                    offset: options?.offset || 1,
-                    limit: options?.limit || 100
+                    ...(options?.offset !== undefined && { offset: options.offset }),
+                    ...(options?.limit !== undefined && { limit: options.limit }),
+                    dateformats: 2
                 }
             };
             if (prescript) {
@@ -167,8 +171,9 @@ function createLayoutMethods(layoutName) {
                 dapi: {
                     action: 'read',
                     layouts: layoutName,
-                    offset: options?.offset || 1,
-                    limit: options?.limit || 100
+                    ...(options?.offset !== undefined && { offset: options.offset }),
+                    ...(options?.limit !== undefined && { limit: options.limit }),
+                    dateformats: 2
                 }
             };
             if (prescript) {
@@ -187,7 +192,8 @@ function createLayoutMethods(layoutName) {
                 dapi: {
                     action: 'delete',
                     layouts: layoutName,
-                    recordId: recordId
+                    recordId: recordId,
+                    dateformats: 2
                 }
             };
             if (prescript) {

@@ -31,7 +31,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "fm-gofer": "^1.11.0"
+    "fm-gofer": "file:../fm-gofer"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

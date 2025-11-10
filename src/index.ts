@@ -87,7 +87,8 @@ function createLayoutMethods<T>(layoutName: string): LayoutMethods<T> {
         dapi: {
           action: 'create',
           layouts: layoutName,
-          fieldData: fieldData as Record<string, any>
+          fieldData: fieldData as Record<string, any>,
+          dateformats: 2
         }
       };
 
@@ -118,7 +119,8 @@ function createLayoutMethods<T>(layoutName: string): LayoutMethods<T> {
           action: 'update',
           layouts: layoutName,
           recordId: recordId,
-          fieldData: fieldData as Record<string, any>
+          fieldData: fieldData as Record<string, any>,
+          dateformats: 2
         }
       };
 
@@ -145,7 +147,8 @@ function createLayoutMethods<T>(layoutName: string): LayoutMethods<T> {
         dapi: {
           action: 'read',
           layouts: layoutName,
-          recordId: recordId
+          recordId: recordId,
+          dateformats: 2
         }
       };
 
@@ -182,8 +185,9 @@ function createLayoutMethods<T>(layoutName: string): LayoutMethods<T> {
           action: 'read',
           layouts: layoutName,
           query: fmQuery,
-          offset: options?.offset || 1,
-          limit: options?.limit || 100
+          ...(options?.offset !== undefined && { offset: options.offset }),
+          ...(options?.limit !== undefined && { limit: options.limit }),
+          dateformats: 2
         }
       };
 
@@ -210,8 +214,9 @@ function createLayoutMethods<T>(layoutName: string): LayoutMethods<T> {
         dapi: {
           action: 'read',
           layouts: layoutName,
-          offset: options?.offset || 1,
-          limit: options?.limit || 100
+          ...(options?.offset !== undefined && { offset: options.offset }),
+          ...(options?.limit !== undefined && { limit: options.limit }),
+          dateformats: 2
         }
       };
 
@@ -238,7 +243,8 @@ function createLayoutMethods<T>(layoutName: string): LayoutMethods<T> {
         dapi: {
           action: 'delete',
           layouts: layoutName,
-          recordId: recordId
+          recordId: recordId,
+          dateformats: 2
         }
       };
 

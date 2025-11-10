@@ -47,6 +47,7 @@ export interface ExecuteDataAPIRequest {
   offset?: number;
   limit?: number;
   sort?: SortSpecification[];
+  dateformats?: number;
 }
 
 /**
