@@ -1,6 +1,6 @@
 {
   "name": "fm-jsdriver",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Type-safe FileMaker driver for webviewer communication using fm-gofer",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
