@@ -2,15 +2,23 @@
   "name": "fm-jsdriver",
   "version": "1.0.0",
   "description": "Type-safe FileMaker driver for webviewer communication using fm-gofer",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
   "bin": {
     "fm-generate-schema": "./dist/generator.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsup",
     "prepublishOnly": "npm run build",
-    "generate-schema": "ts-node src/generator.ts",
+    "generate-schema": "node dist/generator.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "files": [
@@ -30,12 +38,10 @@
   ],
   "author": "",
   "license": "MIT",
-  "dependencies": {
-    "fm-gofer": "file:../fm-gofer"
-  },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "ts-node": "^10.9.0",
+    "fm-gofer": "file:../fm-gofer",
+    "tsup": "^8.5.1",
     "typescript": "^5.0.0"
   },
   "engines": {
