@@ -1,0 +1,18 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "..",
+    "baseUrl": "..",
+    "noEmit": true,
+    "paths": {
+      "fm-jsdriver": ["src/index.ts"]
+    }
+  },
+  "include": [
+    "./**/*",
+    "../src/**/*"
+  ],
+  "exclude": [
+    "./react-example.tsx"
+  ]
+}

@@ -3,6 +3,7 @@
  * Main driver implementation using fm-gofer for FileMaker script execution
  */
 
+import FMGofer from 'fm-gofer';
 import {
   FMSchema,
   LayoutMethods,
@@ -13,11 +14,6 @@ import {
   Driver
 } from './types';
 import { validateSchema, getLayoutNames } from './schema';
-
-// Import FMGofer - this should be available in the browser context
-declare const FMGofer: {
-  PerformScript(scriptName: string, parameter: string): Promise<any>;
-};
 
 /**
  * Normalizes ScriptInput to ScriptObject format
@@ -296,4 +292,3 @@ export function createDriver(schema: FMSchema): Driver {
 // Export all types for use by consumers
 export * from './types';
 export * from './schema';
-export { generateTypeScriptFromSchema } from './generator';

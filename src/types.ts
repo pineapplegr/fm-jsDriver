@@ -143,7 +143,6 @@ export interface LayoutMethods<T> {
 /**
  * Driver interface with layout-specific methods
  */
-export interface Driver {
-  [layoutName: string]: LayoutMethods<any> | ((script: ScriptInput) => Promise<any>);
-  executeScript(script: ScriptInput): Promise<any>;
-}
+export type Driver = {
+  executeScript: (script: ScriptInput) => Promise<any>;
+} & Record<string, LayoutMethods<any>>;

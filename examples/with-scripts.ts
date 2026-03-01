@@ -108,6 +108,7 @@ async function generateReport() {
     return { result1, result2 };
   } catch (error) {
     console.error('Report generation failed:', error);
+    return undefined;
   }
 }
 
@@ -183,6 +184,7 @@ async function batchProcessing() {
     return results;
   } catch (error) {
     console.error('Batch processing failed:', error);
+    return undefined;
   }
 }
 

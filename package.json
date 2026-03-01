@@ -8,7 +8,7 @@
     "fm-generate-schema": "./dist/generator.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "vite build",
     "prepublishOnly": "npm run build",
     "generate-schema": "ts-node src/generator.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -36,7 +36,9 @@
   "devDependencies": {
     "@types/node": "^20.0.0",
     "ts-node": "^10.9.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vite-plugin-minify": "^2.1.0",
+    "vite-plugin-singlefile": "^2.3.0"
   },
   "engines": {
     "node": ">=14.0.0"
