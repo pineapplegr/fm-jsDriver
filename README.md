@@ -781,10 +781,13 @@ function Component() {
 1. **Always use recordId**: Never use primary key fields for get/update/delete - only recordId
 2. **Include required fields**: Check schema for `_meta.notEmpty: true` fields
 3. **Use Partial for updates**: Updates should use `Partial<T>` type
-4. **Add pagination**: Always include `{ limit: number }` for find/list operations
+4. **Add pagination**: The FileMaker Data API returns a maximum of 100 records per request by default when no limit is specified. Use foundCount and returnedCount in dataInfo to either render a list with pagination or load all records as batches
 5. **Type-safe field names**: Only use field names that exist in the schema
 6. **Handle async**: All operations return Promises - use async/await
 7. **Error handling**: Wrap operations in try/catch for production code
+8. **Boolean fields**: FileMaker doesn't support boolean fields. Instead of boolean fields of true/false, create a number field of 1/0
+9. **Primary keys**: FileMaker is responsible for creating primary keys. When creating a new record, fm-jsdriver will return the primary key value in the field designated as primary key
+10. **Working with dates and timestamps**: FileMaker can return date and timestamp fields in ISO format, but it doesn't support the format for setting data (create or update). To set a date, use the FileMaker accepted format which is YYYY+MM+DD and for timestamp YYYY+MM+DD HH:MM:SS. Timezone issues will be handled in FileMaker
 
 ### Example Conversation Flow
 
