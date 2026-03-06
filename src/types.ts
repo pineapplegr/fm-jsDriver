@@ -19,11 +19,12 @@ export interface ScriptObject {
 }
 
 /**
- * Options for pagination in find and list operations
+ * Options for pagination and sorting in find and list operations
  */
 export interface FindOptions {
   offset?: number;  // Starting record (1-based index)
   limit?: number;   // Maximum number of records to return
+  sort?: SortSpecification[];  // Sort order for results
 }
 
 /**

@@ -183,6 +183,7 @@ function createLayoutMethods<T>(layoutName: string): LayoutMethods<T> {
           query: fmQuery,
           ...(options?.offset !== undefined && { offset: options.offset }),
           ...(options?.limit !== undefined && { limit: options.limit }),
+          ...(options?.sort !== undefined && { sort: options.sort }),
           dateformats: 2
         }
       };
@@ -212,6 +213,7 @@ function createLayoutMethods<T>(layoutName: string): LayoutMethods<T> {
           layouts: layoutName,
           ...(options?.offset !== undefined && { offset: options.offset }),
           ...(options?.limit !== undefined && { limit: options.limit }),
+          ...(options?.sort !== undefined && { sort: options.sort }),
           dateformats: 2
         }
       };

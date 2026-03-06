@@ -269,9 +269,10 @@ const results = await fm.Contacts.find({
 
 **Parameters:**
 - `query: Partial<T>` - Search criteria
-- `options?: FindOptions` - Pagination options
+- `options?: FindOptions` - Pagination and sort options
   - `offset?: number` - Starting record (default: 1)
   - `limit?: number` - Maximum records (default: 100)
+  - `sort?: SortSpecification[]` - Sort order for results
 - `prescript?: ScriptInput` - Optional script to run before find
 - `script?: ScriptInput` - Optional script to run after find
 
@@ -287,7 +288,10 @@ const all = await fm.Contacts.list({
 ```
 
 **Parameters:**
-- `options?: FindOptions` - Pagination options
+- `options?: FindOptions` - Pagination and sort options
+  - `offset?: number` - Starting record (default: 1)
+  - `limit?: number` - Maximum records (default: 100)
+  - `sort?: SortSpecification[]` - Sort order for results
 - `prescript?: ScriptInput` - Optional script to run before list
 - `script?: ScriptInput` - Optional script to run after list
 
@@ -321,6 +325,35 @@ await fm.executeScript('GenerateReport');
 
 **Parameters:**
 - `script: ScriptInput` - Script name (string) or script object
+
+### SortSpecification Type
+
+Sort orders can be passed to `find()` and `list()` via the `sort` option:
+
+```typescript
+{
+  fieldName: string;       // The field to sort by
+  sortOrder: 'ascend' | 'descend';  // Sort direction
+}
+```
+
+Example:
+
+```typescript
+// Sort by a single field
+const results = await fm.Products.find(
+  { Category: 'Electronics' },
+  { sort: [{ fieldName: 'Price', sortOrder: 'ascend' }] }
+);
+
+// Sort by multiple fields
+const results = await fm.Products.list({
+  sort: [
+    { fieldName: 'Category', sortOrder: 'ascend' },
+    { fieldName: 'Price', sortOrder: 'descend' }
+  ]
+});
+```
 
 ### ScriptInput Type
 
@@ -427,6 +460,30 @@ const results = await fm.Contacts.find({
 }, {
   offset: 1,
   limit: 20
+});
+```
+
+### Sorting Results
+
+Use the `sort` option in `find()` or `list()` to control result order:
+
+```typescript
+// Find low-stock products, sorted by Stock ascending
+const lowStock = await fm.Products.find(
+  { Stock: '<40' },
+  {
+    sort: [{ fieldName: 'Stock', sortOrder: 'ascend' }],
+    limit: 50
+  }
+);
+
+// List all products sorted by name A-Z, then price high-to-low
+const allProducts = await fm.Products.list({
+  sort: [
+    { fieldName: 'Name', sortOrder: 'ascend' },
+    { fieldName: 'Price', sortOrder: 'descend' }
+  ],
+  limit: 100
 });
 ```
 
@@ -741,7 +798,37 @@ const all = await fm.Contacts.list({
 });
 ```
 
-#### Pattern 3: With Scripts
+#### Pattern 3: Sorting
+
+```typescript
+// When user asks to "find products with stock below 40, sorted by stock descending"
+const results = await fm.Products.find(
+  { Stock: '<40' },
+  {
+    sort: [{ fieldName: 'Stock', sortOrder: 'descend' }],
+    limit: 50
+  }
+);
+
+// When user asks to "list all contacts sorted by name"
+const all = await fm.Contacts.list({
+  sort: [{ fieldName: 'name', sortOrder: 'ascend' }],
+  limit: 100
+});
+
+// Multiple sort fields — primary sort first, secondary sort second
+const results = await fm.Orders.find(
+  { Status: 'Pending' },
+  {
+    sort: [
+      { fieldName: 'Priority', sortOrder: 'descend' },
+      { fieldName: 'CreatedDate', sortOrder: 'ascend' }
+    ]
+  }
+);
+```
+
+#### Pattern 4: With Scripts
 
 ```typescript
 // When user mentions validation or scripts
@@ -789,6 +876,7 @@ function Component() {
 9. **Primary keys**: FileMaker is responsible for creating primary keys. When creating a new record, fm-jsdriver will return the primary key value in the field designated as primary key
 10. **Working with dates and timestamps**: FileMaker can return date and timestamp fields in ISO format, but it doesn't support the format for setting data (create or update). To set a date, use the FileMaker accepted format which is YYYY+MM+DD and for timestamp YYYY+MM+DD HH:MM:SS. Timezone issues will be handled in FileMaker
 11. **Multiple values**: When needing to add multiple values/keys in a field e.g. Apple, Banana, use new line character, which is a natively supported way of storing multiple values in FileMaker (multikey)
+12. **Sorting**: Pass sort as an array of `{ fieldName, sortOrder }` objects in the `options` parameter of `find()` or `list()`. `sortOrder` must be `'ascend'` or `'descend'`. Multiple sort entries are applied in order (first entry is primary sort)
 
 ### Example Conversation Flow
 
