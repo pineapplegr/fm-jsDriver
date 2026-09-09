@@ -877,6 +877,7 @@ function Component() {
 10. **Working with dates and timestamps**: FileMaker can return date and timestamp fields in ISO format, but it doesn't support the format for setting data (create or update). To set a date, use the FileMaker accepted format which is YYYY+MM+DD and for timestamp YYYY+MM+DD HH:MM:SS. Timezone issues will be handled in FileMaker
 11. **Multiple values**: When needing to add multiple values/keys in a field e.g. Apple, Banana, use new line character, which is a natively supported way of storing multiple values in FileMaker (multikey)
 12. **Sorting**: Pass sort as an array of `{ fieldName, sortOrder }` objects in the `options` parameter of `find()` or `list()`. `sortOrder` must be `'ascend'` or `'descend'`. Multiple sort entries are applied in order (first entry is primary sort)
+13. **Testing without a browser**: If you have OData credentials, perform the `jsDriver` script with `{ "test": true, "parameter": { ... } }` to run a real request and see the `{ "failed": ..., "response": ... }` result FileMaker would return - see [Testing the Driver from an AI Agent (OData)](#testing-the-driver-from-an-ai-agent-odata)
 
 ### Example Conversation Flow
 
@@ -895,6 +896,55 @@ const newContact = await fm.Contacts.create({
 ```
 
 ## Testing
+
+### Testing the Driver from an AI Agent (OData)
+
+An AI agent can't run the generated JavaScript in a browser, so it can't see what FileMaker
+actually returns. If the agent has OData credentials for the file, it can run the `jsDriver`
+script itself and get back the exact result the JavaScript would have received.
+
+Perform a script call via OData (`POST /fmi/odata/v4/{database}/Script.jsDriver`) and pass a JSON
+string that wraps the normal driver parameter in a test envelope:
+
+```json
+{
+  "test": true,
+  "parameter": {}
+}
+```
+
+- `test` — set to `true` to run in test mode, so the script returns its result to the OData caller instead of to FMGofer
+- `parameter` — the standard `DriverParameter` object (`prescript` / `dapi` / `script`) the driver would have sent
+
+Example — read the first 2 Contacts records, sorted by name:
+
+```json
+{
+  "test": true,
+  "parameter": {
+    "dapi": {
+      "action": "read",
+      "layouts": "Contacts",
+      "limit": 2,
+      "sort": [{ "fieldName": "name", "sortOrder": "ascend" }]
+    }
+  }
+}
+```
+
+The script result is the two values FileMaker normally hands to FMGofer — the response and the
+failed flag:
+
+```json
+{ "failed": false, "response": {} }
+```
+
+- `failed` — `true` when the request errored, `false` on success
+- `response` — the payload the driver would resolve with (`data`, `dataInfo`, `recordId`, etc.)
+
+Use this to verify layout names, field names, query syntax, sort specifications and date formats
+before writing the TypeScript that calls the driver, and to inspect the real shape of a response
+when the returned data doesn't match expectations.
 
 ### Mocking fm-gofer
 
